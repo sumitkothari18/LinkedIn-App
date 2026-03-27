@@ -12,6 +12,7 @@ import com.example.LinkedIn.user_service.service.JwtService;
 import com.example.LinkedIn.user_service.util.PasswordUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,14 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
 
     @Override
-    public UserDto signUp(SignupRequestDto signupRequestDto) {
+    public UserDto signUp(SignupRequestDto signupRequestDto) throws BadRequestException {
+
+        boolean isExist=userRepository.existsByEmail(signupRequestDto.getEmail());
+
+        if(isExist)
+        {
+            throw new BadRequestException("User already exists, please login");
+        }
 
         User user = modelMapper.map(signupRequestDto,User.class);
         user.setPassword(PasswordUtil.hashPassword(signupRequestDto.getPassword()));
