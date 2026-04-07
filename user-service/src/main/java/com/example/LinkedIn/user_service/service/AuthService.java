@@ -5,6 +5,8 @@ import com.example.LinkedIn.user_service.dto.SignupRequestDto;
 import com.example.LinkedIn.user_service.dto.UserDto;
 import org.apache.coyote.BadRequestException;
 
+import java.util.Optional;
+
 public interface AuthService {
 
     UserDto signUp(SignupRequestDto signupRequestDto) throws BadRequestException;
