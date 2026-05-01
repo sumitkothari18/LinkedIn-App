@@ -1,5 +1,6 @@
 package com.LinkedinApp.connections_service.service.impl;
 
+import com.LinkedinApp.connections_service.auth.UserContextHolder;
 import com.LinkedinApp.connections_service.entity.Person;
 import com.LinkedinApp.connections_service.repository.PersonRepository;
 import com.LinkedinApp.connections_service.service.ConnectionsService;
@@ -17,7 +18,9 @@ public class ConnectionsServiceImpl implements ConnectionsService {
     private final PersonRepository personRepository;
 
     @Override
-    public List<Person> getFirstConnections(Long userId) {
+    public List<Person> getFirstConnections() {
+        Long userId= UserContextHolder.getCurrentUserId();
+        
         log.info("Getting first degree connections for user with userId: {}",userId);
 
         return personRepository.getFirstDegreeConnections(userId);

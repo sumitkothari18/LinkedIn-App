@@ -2,6 +2,7 @@ package com.LinkedinApp.connections_service.controller;
 
 import com.LinkedinApp.connections_service.entity.Person;
 import com.LinkedinApp.connections_service.service.ConnectionsService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +16,10 @@ public class ConnectionsController {
 
     private final ConnectionsService connectionsService;
 
-    @GetMapping("/{userId}/first-degree")
-    public ResponseEntity<List<Person>> getFirstConnections(@PathVariable Long userId)
+    @GetMapping("/first-degree")
+    public ResponseEntity<List<Person>> getFirstConnections()
     {
-        List<Person> personList=connectionsService.getFirstConnections(userId);
+        List<Person> personList=connectionsService.getFirstConnections();
         return ResponseEntity.ok(personList);
     }
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ConnectionsService {
 
-    List<Person> getFirstConnections(Long userId);
+    List<Person> getFirstConnections();
 
     Person getByName(String name);
 
