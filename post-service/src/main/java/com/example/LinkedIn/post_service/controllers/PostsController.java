@@ -21,9 +21,10 @@ public class PostsController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostCreateRequestDto postCreateRequestDto , HttpServletRequest httpServletRequest)
+    public ResponseEntity<PostDto> createPost(@RequestBody PostCreateRequestDto postCreateRequestDto,HttpServletRequest httpServletRequest)
     {
-        PostDto postDto=postService.createPost(postCreateRequestDto,1L);
+
+        PostDto postDto=postService.createPost(postCreateRequestDto);
         return new ResponseEntity<>(postDto, HttpStatus.CREATED);
     }
 

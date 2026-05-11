@@ -16,7 +16,7 @@ public class LikesController {
     @PostMapping("/{postId}")
     public ResponseEntity<Void> likeAPost(@PathVariable Long postId , HttpServletRequest httpServletRequest)
     {
-        postLikeService.likePost(postId,1L);
+        postLikeService.likePost(postId);
 
         return ResponseEntity.ok().build();
     }
@@ -24,7 +24,7 @@ public class LikesController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> unlikePost(@PathVariable Long postId,HttpServletRequest httpServletRequest)
     {
-        postLikeService.unlikePost(postId,1L);
+        postLikeService.unlikePost(postId);
         return ResponseEntity.noContent().build();
     }
 

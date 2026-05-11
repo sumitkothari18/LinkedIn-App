@@ -1,7 +1,9 @@
 package com.example.LinkedIn.post_service.service.impl;
 
+import com.example.LinkedIn.post_service.auth.UserContextHolder;
 import com.example.LinkedIn.post_service.entity.Post;
 import com.example.LinkedIn.post_service.entity.PostLike;
+import com.example.LinkedIn.post_service.events.PostLiked;
 import com.example.LinkedIn.post_service.exception.BadRequestException;
 import com.example.LinkedIn.post_service.exception.ResourceNotFoundException;
 import com.example.LinkedIn.post_service.repository.PostLikeRepository;
@@ -10,6 +12,7 @@ import com.example.LinkedIn.post_service.service.PostLikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,18 +23,18 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     private final PostLikeRepository postLikeRepository;
     private final PostsRepository postsRepository;
+    private final KafkaTemplate<Long, PostLiked> postLikedKafkaTemplate;
 
 
     @Override
-    public void likePost(Long postId, Long userId) {
+    public void likePost(Long postId) {
+        Long userId= UserContextHolder.getCurrentUserId();
 
         log.info("Attempting to like the post with id: {}",postId);
 
-        boolean exists=postsRepository.existsById(postId);
-        if(!exists)
-        {
-            throw new ResourceNotFoundException("Post not found with id: "+postId);
-        }
+        Post post=postsRepository.findById(postId).orElseThrow( ()->
+             new ResourceNotFoundException("Post not found with id: "+postId));
+
 
         boolean alreadyLiked=postLikeRepository.existsByUserIdAndPostId(userId,postId);
         if(alreadyLiked)
@@ -42,8 +45,15 @@ public class PostLikeServiceImpl implements PostLikeService {
         PostLike postLike=new PostLike();
         postLike.setPostId(postId);
         postLike.setUserId(userId);
-
         postLikeRepository.save(postLike);
+
+        PostLiked postLiked=PostLiked.builder()
+                .postId(postId)
+                .postOwnerId(post.getUserId())
+                .postLikedUserId(userId)
+                .build();
+
+        postLikedKafkaTemplate.send("post_liked_topic",postLiked);
 
         log.info("Post liked with id: {}",postId);
 
@@ -53,7 +63,8 @@ public class PostLikeServiceImpl implements PostLikeService {
 
     @Override
     @Transactional
-    public void unlikePost(Long postId, Long userId) {
+    public void unlikePost(Long postId) {
+        Long userId=UserContextHolder.getCurrentUserId();
         log.info("Attempting to unlike the post with id: {}",postId);
 
         boolean exists=postsRepository.existsById(postId);
